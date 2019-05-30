@@ -13,6 +13,13 @@ a, button, :focus, a:focus, button:focus, a:active, a:hover {
     outline: 0;
     outline-style: none;
 }
+.cube-input::after, .cube-select::after, .cube-textarea-wrapper::after
+  border 0  
+.cube-input-field
+  padding 0
+.c-blue
+  .cube-input-field
+    color #529cf8
 // flex定位
 .d-f
   display flex
@@ -37,6 +44,8 @@ a, button, :focus, a:focus, button:focus, a:active, a:hover {
   color #fff
 .c-blue248
   color rgb(82,156,248)
+.c-red75
+  color rgb(255,75,75)
 .bgc-blue248
   background-color: rgb(82,156,248)
 .bgc-green96
@@ -92,6 +101,8 @@ a, button, :focus, a:focus, button:focus, a:active, a:hover {
   font-weight 500  
 .t-c
   text-align center
+.t-l
+  text-align left
 // 边框
 .b-b-e
   border-bottom .02rem solid #eeeeee
@@ -100,5 +111,9 @@ a, button, :focus, a:focus, button:focus, a:active, a:hover {
   width 50%
 .w-20
   width 20%
+.h-20
+  height 20%
+.ht-20
+  height .4rem
 .d-b
   display block

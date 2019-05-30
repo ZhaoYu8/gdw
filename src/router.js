@@ -15,6 +15,11 @@ export default new Router({
       path: '/detail',
       name: 'detail',
       component: () => import('./views/Detail.vue')
+    },
+    {
+      path: '/add',
+      name: 'add',
+      component: () => import('./views/add.vue')
     }
   ]
 })
