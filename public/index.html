@@ -4,12 +4,31 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>zy-gdw</title>
+    <link rel="icon" href="<%= BASE_URL %>bitbug_favicon.ico">
+    <link rel="stylesheet" type="text/css" href="http://at.alicdn.com/t/font_1216181_91jcb9hqt4e.css">
+    <title>gdw</title>
+    <script>
+      (function (doc, win, undefined) {
+        var docEl = doc.documentElement,
+          resizeEvt = 'orientationchange' in win ? 'orientationchange' : 'resize',
+          recalc = function () {
+            var clientWidth = docEl.clientWidth;
+            if (clientWidth === undefined) return;
+            if (clientWidth / 7.5 < 100) {
+              docEl.style.fontSize = (clientWidth / 7.5) + 'px';
+            } else {
+              docEl.style.fontSize = '100px';
+            }
+          };
+        if (doc.addEventListener === undefined) return;
+        win.addEventListener(resizeEvt, recalc, false);
+        doc.addEventListener('DOMContentLoaded', recalc, false)
+      })(document, window);
+    </script>
   </head>
   <body>
     <noscript>
-      <strong>We're sorry but zy-gdw doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+      <strong>We're sorry but gdw doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
