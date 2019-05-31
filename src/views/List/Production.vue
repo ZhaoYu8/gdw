@@ -5,7 +5,7 @@
       <ul>
         <li v-for="(item, index) in list1" :key="index" class="pb-10">
           <div class="d-f f-14 ht-20">
-             <p class="w-50 d-f a-i-c">
+            <p class="w-50 d-f a-i-c">
               <span class="f-1 d-b t-l">{{item.arr[0]}}</span>
               <span class="f-1 t-c">{{item.data[0]}}</span>
             </p>
@@ -18,7 +18,8 @@
       </ul>
     </div>
       <p class="add" @click="goRouter">
-        <i class="iconfont icon-tianjia"></i>
+        <i class="iconfont icon-tianjia">
+        </i>
       </p>
   </div>
 </template>
