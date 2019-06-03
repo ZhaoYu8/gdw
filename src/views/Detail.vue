@@ -10,10 +10,10 @@
       <cube-slide ref="slide" :initial-index="initialIndex" :autoPlay="false" :show-dots="false" :options="slideOptions" @change="changePage">
         <cube-slide-item v-for="(item, index) in headerItem" :key="index">
             <cube-scroll class="plr-10" :data="headerItem" :ref="item.ref" :options="item.scrollOptions" @pulling-down="onPullingDown(item, index)" @pulling-up="onPullingUp(item, index)">
-              <Fabric v-if="index === 0"></Fabric>
-              <Material v-if="index === 1"></Material>
-              <OrderStyle v-if="index === 2"></OrderStyle>
-              <Production v-if="index === 3"></Production>
+              <Fabric v-if="index === 0" :item="item.data"></Fabric>
+              <Material v-if="index === 1" :item="item.data"></Material>
+              <OrderStyle v-if="index === 2" :item="item.data"></OrderStyle>
+              <Production v-if="index === 3" :item="item.data"></Production>
             </cube-scroll>
         </cube-slide-item>
       </cube-slide>
@@ -35,18 +35,31 @@ export default {
     OrderStyle,
     Production
   },
+  watch: {
+    $route: {
+      handler(val) {
+        if (val.name === 'detail') {
+          this.headerItem.forEach(r => {
+            r.firstHttp = false
+          })
+          this.changePage(0)
+        }
+      }
+    }
+  },
   data() {
     return{
       active: '订单款式',
       headerItem: [ // value 头部总数 currentPage 当前页 sum 总数 
-        { label: '订单款式', ref: 'subordinate_a', firstHttp: false, id: 'lastOverQty',  value: 0, currentPage:1, sum: 0, data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}},
-        { label: '面料信息', ref: 'subordinate_b', firstHttp: false, id: 'todayTaskQty', value: 0, currentPage:1, sum: 0,  data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}},
-        { label: '辅料信息', ref: 'subordinate_c', firstHttp: false, id: 'outTaskQty', value: 0, currentPage:1, sum: 0, data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}},
-        { label: '生产日报', ref: 'subordinate_c', firstHttp: false, id: 'outTaskQty', value: 0, currentPage:1, sum: 0, data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}}
+        { label: '订单款式', ref: 'subordinate_a', address: 'trackings/detail', firstHttp: false, currentPage:1, sum: 0, data: {}, scrollOptions: {scrollbar: false, pullDownRefresh:false, pullUpLoad: false}},
+        { label: '面料信息', ref: 'subordinate_b', address: 'trackings/fabric', firstHttp: false, currentPage:1, sum: 0,  data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}},
+        { label: '辅料信息', ref: 'subordinate_c', address: 'trackings/excipient', firstHttp: false, currentPage:1, sum: 0, data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}},
+        { label: '生产日报', ref: 'subordinate_c', address: 'trackings/daily_report', firstHttp: false, currentPage:1, sum: 0, data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}}
       ],
       slideOptions: {
         listenScroll: true
-      }
+      },
+
     }
   },
   methods:{
@@ -54,8 +67,7 @@ export default {
       item.data.splice(0) // 先把数据全部清掉
       item.currentPage = 1 // 当前页重置为1
       let parameter = { type: index + 1, pageIndex: item.currentPage, pageSize: 10 }
-      this.httpGetBranchTaskPage(parameter).then((data) => {
-        item.scrollOptions.pullUpLoad = data.result.items.length < 10 ? false : {txt: ' ', stopTime: 0}
+      this.httpPublic(parameter).then((data) => {
         item.data = item.data.concat(data.result.items) // 数组拼接
         this.$nextTick(() => {
           this.$refs[item.ref][0].forceUpdate(true)
@@ -65,54 +77,47 @@ export default {
     onPullingUp(item, index) { // 上翻请求新数据
       item.currentPage++
       let parameter = { type: index + 1, pageIndex: item.currentPage, pageSize: 10 }
-      this.httpGetBranchTaskPage(parameter).then((data) => {
-        item.scrollOptions.pullUpLoad = data.result.items.length < 10 ? false : {txt: ' ', stopTime: 0}
+      this.httpPublic(parameter).then((data) => {
         item.data = item.data.concat(data.result.items) // 数组拼接
         this.$nextTick(() => {
           this.$refs[item.ref][0].forceUpdate(true)
         })
       })
     },
-    changePage(val) { // 点击头部，和左右滑动
-      let item = this.headerItem[val], parameter = { type: val + 1, pageIndex: item.currentPage, pageSize: 10 }
+    changePage(val, _boolean) { // 点击头部，和左右滑动
+      let item = this.headerItem[val]
       this.active = item.label
-      if (!item.firstHttp && item.value) { // 如果第一次没有调用过
-        this.httpGetBranchTaskPage(parameter).then((data) => {
+      if (_boolean || !item.firstHttp) { // 如果第一次没有调用过
+        this.httpPublic(item, this.ginseng).then((data) => {
           item.firstHttp = true // 解决第一次调用
-          item.data = item.data.concat(data.result.items) // 数组拼接
-          item.sum = Math.ceil(Number(data.result.totalCount)/10) // 总页
-          item.scrollOptions.pullUpLoad =  item.sum > 1 ? {txt: ' ', stopTime: 0} : false
+          if (val === 0) {
+            item.data = data
+          } else {
+            item.data = item.data.concat(data.products) // 数组拼接
+          }
         })
       }
     },
-    httpGetBraTaskTotal () { // 页面初始化加载的方法
-        let data = {
-          result : {}
-        }
-        this.headerItem.forEach((item) => {
-          item.value = data.result[item.id]
-        })
-    },
-    // type  任务统计 1.昨日完成 2.今日到期 3.全部逾期 订单统计 1.作日新增 2.今日新增 3.本周截止 4.过期业务 ,
-    async httpGetBranchTaskPage (parameter) { // 公共调用接口方法
-      let data = await this.$http('post', 'api/services/app/rptTotal/GetBranchTaskPage', parameter)
-      if (data.data.success === true ) {
-        return data.data
-      } else {
-        this.$global.toast(data.data.error.message,'error')
-      }
+    async httpPublic (item, parameter) { // 公共调用接口方法
+      let data = await this.$http('GET', item.address, parameter)
+      return data.data
     }
   },
   mounted(){
-    this.httpGetBraTaskTotal() // 先调用头部接口
+    this.changePage(0)
   },
   computed: {
-    initialIndex () {
+    initialIndex () { // 当前第几页
       let index = 0
       this.headerItem.forEach((item, _index) => {
         if (item.label === this.active) index = _index
       })
       return index
+    },
+    ginseng () {
+      let query = {}
+      query.tracking_gid = this.$route.query.id
+      return query
     }
   }
 }

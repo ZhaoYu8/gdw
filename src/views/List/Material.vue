@@ -1,25 +1,22 @@
 <template>
   <div class="material">
-    <div class="b-b-e">
-      <p class="f-16 pb-10 pt-10 d-f j-c-s-b"><span>品名</span><span class="c-blue248">规格编号</span></p>
+    <div class="b-b-e" v-for="(item, index) in products" :key="index">
+      <p class="f-16 pb-10 pt-10 d-f j-c-s-b"><span>{{item.product_name}}</span><span class="c-blue248">规格编号</span></p>
       <ul>
-        <li v-for="(item, index) in list1" :key="index" class="pb-10">
+        <li v-for="(_item, _index) in item.values" :key="_index" class="pb-10 w-50 f-l">
           <div class="d-f f-14">
-             <p class="w-50 d-f a-i-c">
-              <span class="f-1 d-b t-l">{{item.arr[0]}}</span>
-              <cube-input class="f-1" :class="{'c-blue': index > 2}" v-model="item.data[0]" :disabled="buttonType0"></cube-input>
-            </p>
-            <p class="w-50 d-f a-i-c">
-              <span class="f-1 d-b t-l">{{item.arr[1]}}</span>
-              <cube-input class="f-1" :class="{'c-blue': index > 2}" v-model="item.data[1]" :disabled="buttonType0"></cube-input>
+            <p class="w-100 d-f a-i-c ht-20">
+              <span class="f-1 d-b">{{_item.text}}</span>
+              <span class="f-1" v-if="_index < 6">{{_item.value}}</span>
+              <cube-input v-else class="f-1 c-blue" v-model="_item.value" :disabled="!modification[index]"></cube-input>
             </p>
           </div>
         </li>
-        <p class="pb-10 pt-10 f-16 d-f j-c-s-b">
+        <p class="pb-10 pt-10 f-16 d-f j-c-s-b clear">
           <span>合计：</span>
-          <span @touchend.stop.prevent="edit(0)">
-            <i class="iconfont icon-xiugai1 c-blue248 f-18" v-show="buttonType0"/>
-            <i class="iconfont icon-baocun c-red75 f-18" v-show="!buttonType0"/>
+          <span @touchend.stop.prevent="edit(index)">
+            <i class="iconfont icon-xiugai1 c-blue248 f-18" v-show="!modification[index]"/>
+            <i class="iconfont icon-baocun c-red75 f-18" v-show="modification[index]"/>
           </span>
         </p>
       </ul>
@@ -32,22 +29,36 @@ export default {
   name: 'material',
   components: {
   },
+  props: {
+    item: {
+      type: Array
+    }
+  },
+  watch: {
+    item: {
+      handler(data) {
+        if (data.length) {
+          console.log(data)
+          this.products = data
+          this.products.forEach((r, index) => {
+            this.$set(this.modification,index, false)
+          })
+        } else {
+          this.products = []
+        }
+      },
+      immediate: true
+    }
+  },
   data () {
     return {
-      list1: [
-        {arr: ['供应商', '类型'], data: ['测试', '测试']},
-        {arr: ['颜色色号', '幅宽'], data: ['测试', '测试']},
-        {arr: ['单位'], data: ['测试']},
-        {arr: ['实际发货', '实际到货'], data: [4, 4]},
-        {arr: ['实际用量', '工厂退QC'], data: [4, 4]},
-      ],
-      buttonType0: true
+      products: [],
+      modification: []
     }
   },
   methods: {
-    edit(type) {
-      let id = `buttonType${type}`
-      this[id] = !this[id]
+     edit(index) {
+      this.$set(this.modification, index, !this.modification[index])
     }
   },
   mounted () {

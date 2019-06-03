@@ -1,14 +1,10 @@
 import Vue from 'vue'
 import http from './apis/http'
 let global = {
-  async httpPublic (datas, location) { // 公共调用接口方法
-    let _location = 'api/services/' + location
-    let data = await window.http('post', _location, datas)
-    if (data.data.success === true ) {
-      return data.data
-    } else {
-      this.toast(data.data.error.message, 'error', 2000)
-    }
+  isNum (data) {
+    let re = /^[0-9]+.?[0-9]*$/
+    let result = !re.test(data)
+    return result
   }
 }
 Vue.prototype.$global = window.global = global

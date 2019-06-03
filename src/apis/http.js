@@ -1,56 +1,32 @@
-import axios from 'axios'
-let baseUrl = 'http://yww.kuguanwang.com/'
 
-export default (type, url, metadata) => {
-  let data = Object.assign(metadata || {})
-  let Authorization = localStorage.getItem('Authorization')
-  let config = {
-    method: type,
-    url: baseUrl + url,
-    data: '',
-    params: '',
-    withCredentials: true,
-    headers: {
-      'Authorization': 'Bearer ' + Authorization
+let baseUrl = 'http://gendanwang.com/api/'
+export default (type = 'GET', url, data = {}) => {
+  url = baseUrl + url
+  if (type === 'GET' && JSON.stringify(data) !== '{}') {
+    let query = '?'
+    Object.keys(data).forEach((key) => {
+      query+=`${key}=${data[key]}&`
+    })
+    query = query.slice(0, query.length-1)
+    url += query
+  }
+  const promise = new Promise((resolve) => {
+    const handler = function() {
+      if (this.readyState !== 4) {
+        return
+      }
+      if (this.status === 200) {
+        resolve(this.response)
+      } else {
+        console.log(new Error(this.statusText))
+      }
     }
-  }
-  if (type === 'post') {
-    config.data = data
-  } else if (type === 'get') {
-    config.params = data
-  } else if (type === 'getUrl') {
-    return baseUrl
-  }
-  return new Promise(function (resolve) {
-    axios(config)
-    .then((response) => {
-      resolve({ status: response.status, data: response.data })
-    })
-    .catch(function (error) {
-      if (error.response.status === 401) {
-        console.log(error)
-      }
-      resolve({ status: error.response.status, message: error.response.data.error.message })
-    })
-    // 拦截
-    axios.interceptors.request.use(config => {
-      return config
-    },err => {
-      return Promise.reject(err)
-    })
-    // 拦截 响应
-    axios.interceptors.response.use(response => {
-      return response
-    },error => {
-      if (error.response) {
-        switch (error.response.status) {
-          case 401:
-            break
-          case 500:
-            break
-        }
-      }
-      return Promise.reject(error.response.data)   // 返回接口返回的错误信息
-    })
+    const client = new XMLHttpRequest()
+    client.open(type, url,true)
+    client.onreadystatechange = handler
+    client.responseType = "json"
+    client.setRequestHeader("Accept", "application/json")
+    client.send()
   })
+  return promise
 }

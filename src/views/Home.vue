@@ -1,20 +1,22 @@
 <template>
   <div class="home">
-    <globalSearch :options="inputOptions"></globalSearch>
+    <globalSearch :options="inputOptions" @confirm="searchQuery" @blur="searchQuery"></globalSearch>
     <div class= "content-list">  <!-- 列表区域 -->
-     <trackingScrollPage :list ="items" :pageSize ='search.pageSize' :pageIndex ='search.pageIndex' :options ='options' @getList ='getList' @scrollEnd="scrollEnd"> 
+     <trackingScrollPage :list ="items" :pageSize ='search.pageSize' :pageIndex ='search.pageIndex' :options ='options' @getList ='getList'> 
        <ul>
         <li v-for ="(item, index) in items" :key ="index">
            <div class="list p-10 pr-12 pl-12">
-            <p class="pb-10 f-14">
-              头部
+            <p class="pb-10 f-14 d-f j-c-s-b">
+              <span class="f-3 hidden">{{item.product_name}}{{item.customer_name}}</span>
+              <span class="f-2">交付时间: {{item.delivery_date}}</span>
             </p>
-            <div class="d-f" @click="goDetails">
-              <img src="../assets/img/default.jpg" alt="">
-              <div class="f-1 c-666 d-f f-d-c j-c-s-b ml-10 f-12">
-                <p class="f-w-5">客户名称：<span>测试李三</span></p>
-                <p class="f-w-5">款式名称：<span>测试新款</span></p>
-                <p class="f-w-5">加工厂名称：<span>测试李三加工厂</span></p>
+            <div class="d-f" @click="goDetails(item)">
+              <img src="../assets/img/default.jpg" alt="" v-if="!item.file_path">
+              <img :src='item.file_path' alt="" v-else>
+              <div class="f-1 c-666 d-f f-d-c j-c-s-b ml-10 f-12 hidden">
+                <p class="f-w-5">客户名称：<span>{{item.customer_name}}</span></p>
+                <p class="f-w-5 d-f">款式名称：<span class="w-80 hidden">{{item.product_name}}</span></p>
+                <p class="f-w-5">加工厂名称：<span>{{item.factory_name}}</span></p>
               </div>
               <div class="d-f a-i-c button t-c">
                 <p class="c-fff bgc-blue248 f-14">审批</p>
@@ -31,7 +33,6 @@
 <script>
 import GlobalSearch from '../components/common/GlobalSearch'
 import TrackingScrollPage from '../components/common/TrackingScrollPage'
-import { setTimeout } from 'timers';
 export default {
   name: 'home',
   components: {
@@ -52,44 +53,71 @@ export default {
         scrollbar: true
       },
       search: {
-        pageSize: 10,
+        pageSize: 0,
         pageIndex: 1
-      }
+      },
+      search_query: ''
     }  
+  },
+  computed: {
+    ginseng () {
+      let query = {
+        page: this.search.pageIndex
+      }
+      if (this.search_query) {
+        query.query = this.search_query
+      }
+      return query
+    }
   },
   methods: {
     searchQuery (val) {
-      console.log(val)
+      this.search_query = val
+      this.items.splice(0)
+      this.search.pageIndex = 1
+      this.$http('GET', "trackings", this.ginseng).then((data) => {
+        this.search.pageSize = data.data.paginate_meta.total_pages
+        this.items = this.items.concat(data.data.result)
+        this.options.pullUpLoad = data.data.result.length < 8 ? false : true
+      })
     },
-    getList (val) {
+    getList (val, count) {
       if (val === 1) {
-        setTimeout(() => {
-          this.items.splice(0)
-          for (let index = 0; index < 10; index++) {
-            this.items.push({name: index})
-          }
+        this.search.pageIndex = 1
+        this.items.splice(0)
+        this.$http('GET', "trackings", this.ginseng).then((data) => {
+          this.search.pageSize = data.data.paginate_meta.total_pages
           this.search.pageIndex = 1
-        }, 2000)
+          this.items = this.items.concat(data.data.result)
+          this.options.pullUpLoad = data.data.result.length < 8 ? false : true
+        })
+      } else if (val === 2) {
+        this.search.pageIndex++
+        this.$http('GET', "trackings", this.ginseng).then((data) => {
+          this.search.pageSize = data.data.paginate_meta.total_pages
+          this.items = this.items.concat(data.data.result)
+          this.options.pullUpLoad = data.data.result.length < 8 ? false : true
+        })
       } else {
-        setTimeout(() => {
-          for (let index = 0; index < 10; index++) {
-            this.items.push({name: index})
-          }
-          this.search.pageIndex++
-        }, 2000)
+        this.items.splice(0)
+        this.search.pageIndex = count
+        this.$http('GET', "trackings", this.ginseng).then((data) => {
+          this.search.pageSize = data.data.paginate_meta.total_pages
+          this.items = this.items.concat(data.data.result)
+          this.options.pullUpLoad = data.data.result.length < 8 ? false : true
+        })
       }
     },
-    scrollEnd (val) {
-      console.log(val)
-    },
-    goDetails () {
-      this.$router.push({path: '/detail'})
+    goDetails (item) {
+      this.$router.push({name: 'detail', query: {id: item.tracking_gid}})
     }
   },
   mounted () {
-    for (let index = 0; index < 10; index++) {
-      this.items.push({name: index})
-    }
+    this.$http('GET', "trackings").then((data) => {
+      this.search.pageSize = data.data.paginate_meta.total_pages
+      this.items = this.items.concat(data.data.result)
+      this.options.pullUpLoad = data.data.result.length < 8 ? false : true
+    })
   }
 }
 </script>
@@ -104,6 +132,7 @@ export default {
   .list
     border-bottom .02rem solid #eeeeee
     img
+      width 1.2rem
       height 1.2rem
     .button
       p
@@ -111,5 +140,9 @@ export default {
         width 1rem
         line-height .5rem
         border-radius .05rem
+.hidden
+  overflow hidden
+  text-overflow ellipsis
+  white-space nowrap
 </style>
 

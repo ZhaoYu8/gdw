@@ -1,4 +1,12 @@
 module.exports = {
+  devServer:{//代理
+    proxy: {
+      '/api': {
+          target: 'http://gendanwang.com/api/',
+          changeOrigin: true,
+      }
+  }
+  },
   publicPath:  "./",
   css: {
     loaderOptions: {

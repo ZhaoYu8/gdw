@@ -49,7 +49,7 @@ export default {
     inputCancel () { // 点击取消
       this.data.value = ''
       this.data.button = false
-      this.$emit('blur')
+      this.$emit('blur', '')
     },
     searchGoods (event) { // 点击搜索
       if (event.keyCode === 13) { //如果按的是enter键 13是enter 
