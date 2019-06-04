@@ -78,7 +78,21 @@ export default {
   },
   methods: {
     edit(index) {
-      this.$set(this.modification, index, !this.modification[index])
+      let re = /^(-)?([1-9][0-9]*)+(.[0-9]{1,5})?$/, count = 0
+      if (this.modification[index]) { // 保存时
+        let arr = this.others[index].values.map(r => r.value)
+        arr.forEach(r => {
+          if (!re.test(r) && r !== 0) {
+            this.$createToast({
+              time: 2000,
+              type: 'warn',
+              txt: `${r}，不为数字，请检查！`
+            }).show()
+            count++
+          }
+        })
+      }
+      if (!count) this.$set(this.modification, index, !this.modification[index]) // 没有错误就保存
     }
   },
   mounted () {

@@ -1,10 +1,10 @@
 <template>
-  <div class="add">
+  <div class="addProduction">
     <ul>
       <li v-for="(item, index) in list" :key="index" class="d-f a-i-c b-b-e">
         <p class="f-14 c-333 ml-12 f-1">{{item.name}}</p>
         <cube-input class="f-2" v-model="item.model" v-if="!item.type"></cube-input>
-        <cube-select class="f-2" v-model="item.model" v-else-if="item.type === 'select'"></cube-select>
+        <cube-select class="f-2" v-model="item.model" :options="item.options" v-else-if="item.type === 'select'"></cube-select>
         <p class="f-2 ht-45 l-h-45" v-else-if="item.type === 'date'" @touchend.stop.prevent="date(item)">{{item.model}}</p>
       </li>
     </ul>
@@ -17,8 +17,27 @@
 
 <script>
 export default {
-  name: 'add',
+  name: 'addProduction',
   components: {
+  },
+  props: {
+    productionProps: {
+      type: Object
+    }
+  },
+  watch: {
+    productionProps: {
+      handler(data) {
+        if (data.members) {
+          this.list.forEach((r) => {
+            if (r.type === 'select') {
+              this.$set(r, 'options', data.members.map(r => r.name))
+            }
+          })
+        }
+      },
+      immediate: true
+    }
   },
   data () {
     return {
@@ -36,10 +55,10 @@ export default {
   },
   methods: {
     cancel() {
-      this.$router.go(-1)
+      this.$emit('cancel')
     },
     save () {
-      let re = /^[0-9]+.?[0-9]*$/, count = 0
+      let re = /^(-)?([1-9][0-9]*)+(.[0-9]{1,5})?$/, count = 0
       this.list.forEach((r) => {
         if (r.model && r.isNum && !re.test(r.model)) {
           this.$createToast({
@@ -51,7 +70,7 @@ export default {
         }
       })
       if (!count) {
-        this.$router.go(-1)
+        this.$emit('save')
       }
     },
     date (item) {
@@ -72,7 +91,7 @@ export default {
 }
 </script>
 <style lang="stylus" scoped>
-.add
+.addProduction
   li
     height .9rem
   .button

@@ -46,7 +46,7 @@ export default {
       this[id] = !this[id]
     },
     goRouter() {
-      this.$router.push({path: '/add'})
+      this.$emit('add')
     }
   },
   mounted () {

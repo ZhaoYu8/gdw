@@ -6,18 +6,19 @@
       </cube-tab>
     </cube-tab-bar>
     <p class="clearance"></p>
-    <div class="container"> <!-- 主体 -->
+    <div class="container" v-show="!addProduction"> <!-- 主体 -->
       <cube-slide ref="slide" :initial-index="initialIndex" :autoPlay="false" :show-dots="false" :options="slideOptions" @change="changePage">
         <cube-slide-item v-for="(item, index) in headerItem" :key="index">
             <cube-scroll class="plr-10" :data="headerItem" :ref="item.ref" :options="item.scrollOptions" @pulling-down="onPullingDown(item, index)" @pulling-up="onPullingUp(item, index)">
               <Fabric v-if="index === 0" :item="item.data"></Fabric>
               <Material v-if="index === 1" :item="item.data"></Material>
               <OrderStyle v-if="index === 2" :item="item.data"></OrderStyle>
-              <Production v-if="index === 3" :item="item.data"></Production>
+              <Production v-if="index === 3" :item="item.data" @add="productionShow"></Production>
             </cube-scroll>
         </cube-slide-item>
       </cube-slide>
     </div>
+    <add v-show="addProduction" @cancel="cancel" @save="save" :productionProps="headerItem[3].data"></add>
   </div>
 </template>
 
@@ -26,14 +27,15 @@ import Fabric from '../views/List/Fabric'
 import Material from '../views/List/Material'
 import OrderStyle from '../views/List/OrderStyle'
 import Production from '../views/List/Production'
-
+import add from './Add'
 export default {
   name: "detail",
   components: {
     Fabric,
     Material,
     OrderStyle,
-    Production
+    Production,
+    add
   },
   watch: {
     $route: {
@@ -54,15 +56,24 @@ export default {
         { label: '订单款式', ref: 'subordinate_a', address: 'trackings/detail', firstHttp: false, currentPage:1, sum: 0, data: {}, scrollOptions: {scrollbar: false, pullDownRefresh:false, pullUpLoad: false}},
         { label: '面料信息', ref: 'subordinate_b', address: 'trackings/fabric', firstHttp: false, currentPage:1, sum: 0,  data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}},
         { label: '辅料信息', ref: 'subordinate_c', address: 'trackings/excipient', firstHttp: false, currentPage:1, sum: 0, data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}},
-        { label: '生产日报', ref: 'subordinate_c', address: 'trackings/daily_report', firstHttp: false, currentPage:1, sum: 0, data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}}
+        { label: '生产日报', ref: 'subordinate_c', address: 'trackings/daily_report', firstHttp: false, currentPage:1, sum: 0, data: {}, scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}}
       ],
       slideOptions: {
         listenScroll: true
       },
-
+      addProduction: false
     }
   },
   methods:{
+    productionShow() {
+      this.addProduction = true
+    },
+    cancel() {
+      this.addProduction = false
+    },
+    save() {
+      this.addProduction = false
+    },
     onPullingDown(item, index) { // 下拉刷新
       item.data.splice(0) // 先把数据全部清掉
       item.currentPage = 1 // 当前页重置为1
@@ -90,7 +101,7 @@ export default {
       if (_boolean || !item.firstHttp) { // 如果第一次没有调用过
         this.httpPublic(item, this.ginseng).then((data) => {
           item.firstHttp = true // 解决第一次调用
-          if (val === 0) {
+          if (val === 0 || val === 3) {
             item.data = data
           } else {
             item.data = item.data.concat(data.products) // 数组拼接

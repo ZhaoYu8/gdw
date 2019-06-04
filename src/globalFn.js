@@ -2,7 +2,7 @@ import Vue from 'vue'
 import http from './apis/http'
 let global = {
   isNum (data) {
-    let re = /^[0-9]+.?[0-9]*$/
+    let re = /^(-)?([1-9][0-9]*)+(.[0-9]{1,5})?$/
     let result = !re.test(data)
     return result
   }
