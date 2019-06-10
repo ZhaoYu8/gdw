@@ -71,18 +71,17 @@ export default {
   },
   data () {
     return {
-      product_size: [],
-      others: [],
+      product_size: [], // 尺码信息
+      others: [], // data数据
       modification: []
     }
   },
   methods: {
     edit(index) {
-      let re = /^(-)?([1-9][0-9]*)+(.[0-9]{1,5})?$/, count = 0
+      let count = 0, data = {}, Id = ['tailoring', 'customer', 'mantissa', 'defective'], record = 36, arr = this.others[index].values.map(r => r.value)
       if (this.modification[index]) { // 保存时
-        let arr = this.others[index].values.map(r => r.value)
         arr.forEach(r => {
-          if (!re.test(r) && r !== 0) {
+          if (!this.$global.isNum(r)) {
             this.$createToast({
               time: 2000,
               type: 'warn',
@@ -91,9 +90,23 @@ export default {
             count++
           }
         })
+        if (!count) {
+          data[Id[index]] = {}
+          data.tracking_gid = this.$route.query.id
+          arr.map(r => {
+            data[Id[index]][`size${record}`] = r
+            record++
+            record++
+          })
+          this.$http('post', 'trackings/update_special_custom', data)
+        }
       }
-      if (!count) this.$set(this.modification, index, !this.modification[index]) // 没有错误就保存
+      if (!count) {
+        this.$set(this.modification, index, !this.modification[index]) // 没有错误就保存
+      }
     }
+  },
+  computed: {
   },
   mounted () {
   }

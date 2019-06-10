@@ -3,9 +3,9 @@
     <ul>
       <li v-for="(item, index) in list" :key="index" class="d-f a-i-c b-b-e">
         <p class="f-14 c-333 ml-12 f-1">{{item.name}}</p>
-        <cube-input class="f-2" v-model="item.model" v-if="!item.type"></cube-input>
-        <cube-select class="f-2" v-model="item.model" :options="item.options" v-else-if="item.type === 'select'"></cube-select>
-        <p class="f-2 ht-45 l-h-45" v-else-if="item.type === 'date'" @touchend.stop.prevent="date(item)">{{item.model}}</p>
+        <cube-input class="f-2" v-model="item.value" v-if="!item.type"></cube-input>
+        <cube-select class="f-2" v-model="item.value" :options="item.options" v-else-if="item.type === 'select'"></cube-select>
+        <p class="f-2 ht-45 l-h-45" v-else-if="item.type === 'date'" @touchend.stop.prevent="date(item)">{{item.value}}</p>
       </li>
     </ul>
     <div class="d-f button t-c">
@@ -22,16 +22,16 @@ export default {
   },
   props: {
     productionProps: {
-      type: Object
+      type: Array
     }
   },
   watch: {
     productionProps: {
       handler(data) {
-        if (data.members) {
+        if (data) {
           this.list.forEach((r) => {
             if (r.type === 'select') {
-              this.$set(r, 'options', data.members.map(r => r.name))
+              this.$set(r, 'options', data.map(r => r.name))
             }
           })
         }
@@ -42,14 +42,14 @@ export default {
   data () {
     return {
       list: [
-        {name: '记录时间', model: '', type: 'date'},
-        {name: '上线人数', model: '', isNum: true},
-        {name: '裁片上线数', model: '' , isNum: true},
-        {name: '车位半成品数', model: '' , isNum: true},
-        {name: '后道检验人', model: '', type: 'select'},
-        {name: '工作时间', model: '', isNum: true},
-        {name: '成衣上线数', model: '', isNum: true},
-        {name: '记录人', model: '', type: 'select'}
+        {name: '上线人数', value: '', isNum: true, id: "online_number"},
+        {name: '工作时间', value: '', type: 'date', id: "work_hour"},
+        {name: '裁片上线人数', value: '' , isNum: true, id: "cutting_number"},
+        {name: '成衣上线人数', value: '', isNum: true, id: "garment_number"},
+        {name: '车位半成品数', value: '' , isNum: true, id: "semi_number"},
+        {name: '返修人数', value: '', isNum: true, id: 'repair_number'},
+        {name: '后道检验人', value: '', isNum: true, type: 'select', id: "examiner_id"},
+        {name: '记录人', value: '', type: 'select', id: "member_id"}
       ]
     }
   },
@@ -58,18 +58,32 @@ export default {
       this.$emit('cancel')
     },
     save () {
-      let re = /^(-)?([1-9][0-9]*)+(.[0-9]{1,5})?$/, count = 0
+      let count = 0, data = {}, runCount = 0
       this.list.forEach((r) => {
-        if (r.model && r.isNum && !re.test(r.model)) {
+        if (r.value !== '' && r.isNum && !this.$global.isNum(r.value)) {
           this.$createToast({
             time: 2000,
             type: 'warn',
             txt: `${r.name}，必须为数字！`
           }).show()
           count++
+        } else if (!r.value) {
+          runCount++
         }
       })
+      if (runCount === this.list.length) {
+        this.$createToast({
+          time: 2000,
+          type: 'warn',
+          txt: `不能全部为空!`
+        }).show()
+        count++
+      }
       if (!count) {
+        this.list.map(r => {
+          data[r.id] = r.value
+        })
+        data.tracking_gid = this.$route.query.id
         this.$emit('save')
       }
     },
@@ -80,7 +94,7 @@ export default {
           min: new Date(2000, 1, 1),
           max: new Date(2030, 1, 1),
           value: new Date(),
-          onSelect: (date, val) => { item.model = val.join('-') }
+          onSelect: (date, val) => { item.value = val.join('-') }
         })
       }
       this.timePicker.show()

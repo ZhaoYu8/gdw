@@ -1,32 +1,43 @@
 
 let baseUrl = 'http://gendanwang.com/api/'
 export default (type = 'GET', url, data = {}) => {
+  let sendData, formData = new FormData()
   url = baseUrl + url
-  if (type === 'GET' && JSON.stringify(data) !== '{}') {
-    let query = '?'
-    Object.keys(data).forEach((key) => {
-      query+=`${key}=${data[key]}&`
+  type = type.toUpperCase()
+  if (type == 'GET') {
+    let _data = []
+    Object.keys(data).forEach(key => {
+      _data.push(key + '=' + data[key])
     })
-    query = query.slice(0, query.length-1)
-    url += query
-  }
-  const promise = new Promise((resolve) => {
-    const handler = function() {
-      if (this.readyState !== 4) {
-        return
-      }
-      if (this.status === 200) {
-        resolve(this.response)
+    url = url + '?' + _data.join('&')
+  } else {
+    Object.keys(data).forEach(r => {
+      if (data[r] instanceof Object) {
+        formData.append(r, JSON.stringify(data[r]))        
       } else {
-        console.log(new Error(this.statusText))
+        formData.append(r, data[r])
+      }
+    })
+    sendData = formData
+  }
+  const promise =  new Promise((resolve, reject) => {
+    let reqObj = new XMLHttpRequest()
+    reqObj.open(type, url, true)
+    reqObj.setRequestHeader("Accept", "application/json")
+    reqObj.send(sendData)
+    reqObj.onreadystatechange = () => {
+      if (reqObj.readyState == 4) {
+        if (reqObj.status == 200) {
+          let res = reqObj.response
+          if (typeof res !== 'object') {
+            res = JSON.parse(res)
+          }
+          resolve(res)
+        } else {
+          reject(reqObj)
+        }
       }
     }
-    const client = new XMLHttpRequest()
-    client.open(type, url,true)
-    client.onreadystatechange = handler
-    client.responseType = "json"
-    client.setRequestHeader("Accept", "application/json")
-    client.send()
   })
   return promise
 }

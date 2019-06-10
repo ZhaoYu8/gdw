@@ -14,7 +14,7 @@
         </li>
         <p class="pb-10 pt-10 f-16 d-f j-c-s-b clear">
           <span>合计：</span>
-          <span @touchend.stop.prevent="edit(index)">
+          <span @touchend.stop.prevent="edit(index, item)">
             <i class="iconfont icon-xiugai1 c-blue248 f-18" v-show="!modification[index]"/>
             <i class="iconfont icon-baocun c-red75 f-18" v-show="modification[index]"/>
           </span>
@@ -38,7 +38,6 @@ export default {
     item: {
       handler(data) {
         if (data.length) {
-          console.log(data)
           this.orderstyle = data
           this.orderstyle.forEach((r, index) => {
             this.$set(this.modification,index, false)
@@ -57,8 +56,35 @@ export default {
     }
   },
   methods: {
-     edit(index) {
-      this.$set(this.modification, index, !this.modification[index])
+    edit(index, item) {
+      let count = 0, data = {} ,arr = this.orderstyle[index].values.map((r, index) => {
+          if (index >=6 && r !== '') return {value: r.value, name : r.name}
+        }).filter(n => n !== undefined)
+      if (this.modification[index]) { // 保存时
+        arr.forEach((r) => {
+          if (r.value !== '' && !this.$global.isNum(r.value)) {
+            this.$createToast({
+              time: 2000,
+              type: 'warn',
+              txt: `${r.value}，不为数字，请检查！`
+            }).show()
+            count++
+          }
+        })
+        if (!count) {
+          data.tracking_gid = this.$route.query.id
+          data.product_id = item.product_id
+          data.field_values = {}
+          arr.filter(r => r.value !== '').map(n => {
+            data.field_values[n.name] = n.value
+          })
+          this.$http('post', 'trackings/update_product_values', data)
+          console.log(data)
+        }
+      }
+      if (!count) {
+        this.$set(this.modification, index, !this.modification[index]) // 没有错误就保存
+      }
     }
   },
   mounted () {

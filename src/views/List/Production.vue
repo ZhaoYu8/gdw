@@ -1,17 +1,13 @@
 <template>
   <div class="production">
-    <div class="b-b-e">
+    <div class="b-b-e" v-for="(item, index) in reports" :key="index">
       <p class="f-16 pb-10 pt-10 d-f j-c-s-b"><span>记录时间</span></p>
       <ul>
-        <li v-for="(item, index) in list1" :key="index" class="pb-10">
-          <div class="d-f f-14 ht-20">
-            <p class="w-50 d-f a-i-c">
-              <span class="f-1 d-b t-l">{{item.arr[0]}}</span>
-              <span class="f-1 t-c">{{item.data[0]}}</span>
-            </p>
-            <p class="w-50 d-f a-i-c">
-              <span class="f-1 d-b t-l">{{item.arr[1]}}</span>
-              <span class="f-1 t-c">{{item.data[1]}}</span>
+        <li v-for="(_item, _index) in item.values" :key="_index" class="pb-10 w-50 f-l">
+          <div class="d-f f-14">
+            <p class="w-100 d-f a-i-c ht-20">
+              <span class="f-1 d-b">{{_item.text}}</span>
+              <cube-input class="f-1 c-blue" v-model="_item.value" :disabled="true"></cube-input>
             </p>
           </div>
         </li>
@@ -31,13 +27,24 @@ export default {
   },
   data () {
     return {
-      list1: [
-        {arr: ['上线人数', '工作时间'], data: ['1213', '321']},
-        {arr: ['裁片上线数', '成衣上线数'], data: ['23', '321']},
-        {arr: ['车位半成品数', '返修人数'], data: ['321', '321']},
-        {arr: ['后道检验人', '记录人'], data: [4, 4]}
-      ],
-      buttonType0: true
+      reports: []
+    }
+  },
+  props: {
+    item: {
+      type: Object
+    }
+  },
+  watch: {
+    item: {
+      handler(data) {
+        if (data.reports && data.reports.length) {
+          this.reports = data.reports
+        } else {
+          this.reports = []
+        }
+      },
+      immediate: true
     }
   },
   methods: {

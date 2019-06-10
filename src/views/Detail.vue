@@ -18,7 +18,7 @@
         </cube-slide-item>
       </cube-slide>
     </div>
-    <add v-show="addProduction" @cancel="cancel" @save="save" :productionProps="headerItem[3].data"></add>
+    <add v-show="addProduction" @cancel="cancel" @save="save" :productionProps="headerItem[3].data.members"></add>
   </div>
 </template>
 
@@ -54,9 +54,9 @@ export default {
       active: '订单款式',
       headerItem: [ // value 头部总数 currentPage 当前页 sum 总数 
         { label: '订单款式', ref: 'subordinate_a', address: 'trackings/detail', firstHttp: false, currentPage:1, sum: 0, data: {}, scrollOptions: {scrollbar: false, pullDownRefresh:false, pullUpLoad: false}},
-        { label: '面料信息', ref: 'subordinate_b', address: 'trackings/fabric', firstHttp: false, currentPage:1, sum: 0,  data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}},
-        { label: '辅料信息', ref: 'subordinate_c', address: 'trackings/excipient', firstHttp: false, currentPage:1, sum: 0, data: [], scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}},
-        { label: '生产日报', ref: 'subordinate_c', address: 'trackings/daily_report', firstHttp: false, currentPage:1, sum: 0, data: {}, scrollOptions: {scrollbar: false, pullDownRefresh: {txt: ' ', stopTime: 0}, pullUpLoad: false}}
+        { label: '面料信息', ref: 'subordinate_b', address: 'trackings/fabric', firstHttp: false, currentPage:1, sum: 0,  data: [], scrollOptions:  {scrollbar: false, pullDownRefresh:false, pullUpLoad: false}},
+        { label: '辅料信息', ref: 'subordinate_c', address: 'trackings/excipient', firstHttp: false, currentPage:1, sum: 0, data: [], scrollOptions:  {scrollbar: false, pullDownRefresh:false, pullUpLoad: false}},
+        { label: '生产日报', ref: 'subordinate_c', address: 'trackings/daily_report', firstHttp: false, currentPage:1, sum: 0, data: {}, scrollOptions:  {scrollbar: false, pullDownRefresh:false, pullUpLoad: false}}
       ],
       slideOptions: {
         listenScroll: true
