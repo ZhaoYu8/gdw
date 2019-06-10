@@ -8,22 +8,6 @@
     <link rel="stylesheet" type="text/css" href="http://at.alicdn.com/t/font_1216181_0wxe1hvp0nya.css">
     <title>gdw</title>
     <script>
-      (function (doc, win, undefined) {
-        var docEl = doc.documentElement,
-          resizeEvt = 'orientationchange' in win ? 'orientationchange' : 'resize',
-          recalc = function () {
-            var clientWidth = docEl.clientWidth;
-            if (clientWidth === undefined) return;
-            if (clientWidth / 7.5 < 100) {
-              docEl.style.fontSize = (clientWidth / 7.5) + 'px';
-            } else {
-              docEl.style.fontSize = '100px';
-            }
-          };
-        if (doc.addEventListener === undefined) return;
-        win.addEventListener(resizeEvt, recalc, false);
-        doc.addEventListener('DOMContentLoaded', recalc, false)
-      })(document, window);
     </script>
   </head>
   <body>

@@ -116,7 +116,7 @@ export default {
     overflow: hidden
 .page
   position: fixed;
-  bottom: 1rem;
+  bottom: -1rem
   right: 0.5rem;
   z-index: 100 
   .page-index

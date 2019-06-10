@@ -1,6 +1,6 @@
 <template>
   <div class="fabric pb-10">
-    <div class="b-b-e">
+    <div class="b-b-e d-f f-d-c">
       <p class="f-16 pb-10 pt-10">产品图片</p>
       <img src="../../assets/img/default.jpg" alt="" class="pb-10">
     </div>
@@ -98,7 +98,15 @@ export default {
             record++
             record++
           })
-          this.$http('post', 'trackings/update_special_custom', data)
+          this.$http('post', 'trackings/update_special_custom', data).then(r => {
+            if (r.message === 'SUCCESS') {
+              this.$createToast({
+                time: 2000,
+                type: 'correct',
+                txt: `更新成功!`
+              }).show()
+            }
+          })
         }
       }
       if (!count) {
@@ -115,5 +123,6 @@ export default {
 <style lang="stylus" scoped>
 .fabric
   img
+    width 1.2rem
     height 1.2rem
 </style>

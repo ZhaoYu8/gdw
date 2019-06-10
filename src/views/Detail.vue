@@ -13,12 +13,15 @@
               <Fabric v-if="index === 0" :item="item.data"></Fabric>
               <Material v-if="index === 1" :item="item.data"></Material>
               <OrderStyle v-if="index === 2" :item="item.data"></OrderStyle>
-              <Production v-if="index === 3" :item="item.data" @add="productionShow"></Production>
+              <Production v-if="index === 3" :item="item.data"></Production>
             </cube-scroll>
         </cube-slide-item>
       </cube-slide>
     </div>
     <add v-show="addProduction" @cancel="cancel" @save="save" :productionProps="headerItem[3].data.members"></add>
+    <p class="add" v-show="initialIndex === 3 && !addProduction" @click="productionShow">
+      <i class="iconfont icon-tianjia"></i>
+    </p>
   </div>
 </template>
 
@@ -73,6 +76,7 @@ export default {
     },
     save() {
       this.addProduction = false
+      this.changePage(3, true)
     },
     onPullingDown(item, index) { // 下拉刷新
       item.data.splice(0) // 先把数据全部清掉
@@ -157,6 +161,22 @@ export default {
     left 0
     right 0
     bottom 0
+  .add
+    position fixed
+    top 14.5rem
+    right .5rem
+    height 1rem
+    width 1rem
+    text-align center
+    line-height 1rem
+    box-shadow 0 0 .1rem #ccc
+    border-radius 50%
+    background-color rgb(82,156,248)
+    display flex
+    justify-content center
+    i
+      color #fff
+      font-size .5rem
 </style>
 <style lang="stylus">
 .cube-tab_active
