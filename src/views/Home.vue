@@ -14,12 +14,12 @@
               <img src="../assets/img/default.jpg" alt="" v-if="!item.file_path">
               <img :src='item.file_path' alt="" v-else>
               <div class="f-1 c-666 d-f f-d-c j-c-s-b ml-10 f-12 hidden">
-                <p class="f-w-5">客户名称：<span>{{item.customer_name}}</span></p>
+                <p class="f-w-5 hidden">客户名称：<span>{{item.customer_name}}</span></p>
                 <p class="f-w-5 d-f">款式名称：<span class="w-80 hidden">{{item.product_name}}</span></p>
                 <p class="f-w-5">加工厂名称：<span>{{item.factory_name}}</span></p>
               </div>
               <div class="d-f a-i-c button t-c">
-                <p class="c-fff bgc-blue248 f-14">审批</p>
+                <p class="c-fff bgc-blue248 f-14" :class="typeColor(item.last_status)">{{item.last_task}}</p>
               </div>
             </div>
            </div>
@@ -62,7 +62,8 @@ export default {
   computed: {
     ginseng () {
       let query = {
-        page: this.search.pageIndex
+        page: this.search.pageIndex,
+        code: this.$route.query.code || this.getQueryVariable('code') || 0
       }
       if (this.search_query) {
         query.query = this.search_query
@@ -71,6 +72,21 @@ export default {
     }
   },
   methods: {
+    typeColor (type) {
+      let arr = ['incomplete', 'completing', 'completed', 'abort', 'skip'], color = ['bgc-gray231', 'bgc-yellow53', 'bgc-green96', 'bgc-red75', 'bgc-blue248']
+      return color[arr.indexOf(type)] || 'bgc-gray231'
+    },
+    getQueryVariable(variable) {
+       let query = window.location.search.substring(1)
+       let vars = query.split("&")
+       for (let i=0; i < vars.length; i++) {
+        let pair = vars[i].split("=")
+        if (pair[0] === variable) {
+          return pair[1]
+        }
+       }
+       return(false)
+    },
     searchQuery (val) {
       this.search_query = val
       this.items.splice(0)
@@ -113,7 +129,7 @@ export default {
     }
   },
   mounted () {
-    this.$http('GET', "trackings").then((data) => {
+    this.$http('GET', "trackings", this.ginseng).then((data) => {
       this.search.pageSize = data.data.paginate_meta.total_pages
       this.items = this.items.concat(data.data.result)
       this.options.pullUpLoad = data.data.result.length < 8 ? false : true
@@ -136,8 +152,8 @@ export default {
       height 1.2rem
     .button
       p
+        padding 0 .2rem
         height .5rem
-        width 1rem
         line-height .5rem
         border-radius .05rem
 .hidden
