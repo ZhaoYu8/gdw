@@ -114,6 +114,7 @@ export default {
       }
     },
     async httpPublic (item, parameter) { // 公共调用接口方法
+      parameter.code = this.$global.getCode()
       let data = await this.$http('GET', item.address, parameter)
       return data.data
     }

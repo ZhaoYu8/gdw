@@ -1,7 +1,7 @@
 <template>
   <div class="orderstyle">
     <div class="b-b-e" v-for="(item, index) in orderstyle" :key="index">
-      <p class="f-16 pb-10 pt-10 d-f j-c-s-b"><span>{{item.product_name}}</span><span class="c-blue248">规格编号</span></p>
+      <p class="f-16 pb-10 pt-10 d-f j-c-s-b"><span>{{item.product_name}}</span><span class="c-blue248">{{item.product_size}}</span></p>
       <ul>
         <li v-for="(_item, _index) in item.values" :key="_index" class="pb-10 w-50 f-l">
           <div class="d-f f-14">
@@ -78,6 +78,7 @@ export default {
           arr.filter(r => r.value !== '').map(n => {
             data.field_values[n.name] = n.value
           })
+          data.code = this.$global.getCode()
           this.$http('post', 'trackings/update_product_values', data)
           console.log(data)
         }

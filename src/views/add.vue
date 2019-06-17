@@ -85,6 +85,7 @@ export default {
           data[r.id] = r.value
         })
         data.tracking_gid = this.$route.query.id
+        data.code = this.$global.getCode()
         this.$http('post', 'trackings/create_daily_report', data).then(r => {
           if (r.message === 'SUCCESS') {
             this.$emit('save')

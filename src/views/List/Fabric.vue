@@ -2,8 +2,8 @@
   <div class="fabric pb-10">
     <div class="b-b-e d-f f-d-c">
       <p class="f-16 pb-10 pt-10">产品图片</p>
-      <img src="../../assets/img/default.jpg" alt="" class="pb-10" v-if="!item.product">
-      <img :src="item.product.file_path" alt="" class="pb-10" v-else>
+      <img :src="item.product.file_path" alt="" class="pb-10"  v-if="item.product && item.product.file_path">
+      <img src="../../assets/img/default.jpg" alt="" class="pb-10" v-else>
     </div>
     <div class="b-b-e">
       <p class="f-16 pb-10 pt-10">尺码信息</p>
@@ -99,6 +99,7 @@ export default {
             record++
             record++
           })
+          data.code = this.$global.getCode()
           this.$http('post', 'trackings/update_special_custom', data).then(r => {
             if (r.message === 'SUCCESS') {
               this.$createToast({

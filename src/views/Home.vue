@@ -129,6 +129,7 @@ export default {
     }
   },
   mounted () {
+    this.$global.setCode(this.ginseng.code)
     this.$http('GET', "trackings", this.ginseng).then((data) => {
       this.search.pageSize = data.data.paginate_meta.total_pages
       this.items = this.items.concat(data.data.result)
