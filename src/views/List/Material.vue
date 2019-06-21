@@ -8,12 +8,12 @@
             <p class="w-100 d-f a-i-c ht-20">
               <span class="f-1 d-b">{{_item.text}}</span>
               <span class="f-1" v-if="_index < 6">{{_item.value}}</span>
-              <cube-input v-else class="f-1 c-blue" v-model="_item.value" :disabled="!modification[index]"></cube-input>
+              <cube-input v-else class="f-1 c-blue" :class="{inputBorder : modification[index]}" v-model="_item.value" :disabled="!modification[index]"></cube-input>
             </p>
           </div>
         </li>
         <p class="pb-10 pt-10 f-16 d-f j-c-s-b clear">
-          <span>合计：</span>
+          <span>合计：{{item.combined}}</span>
           <span @touchend.stop.prevent="edit(index, item)">
             <i class="iconfont icon-xiugai1 c-blue248 f-18" v-show="!modification[index]"/>
             <i class="iconfont icon-baocun c-red75 f-18" v-show="modification[index]"/>
@@ -39,9 +39,7 @@ export default {
       handler(data) {
         if (data.length) {
           this.products = data
-          this.products.forEach((r, index) => {
-            this.$set(this.modification,index, false)
-          })
+          this.store()
         } else {
           this.products = []
         }
@@ -56,6 +54,13 @@ export default {
     }
   },
   methods: {
+    store () {
+      this.products.forEach((r, index) => {
+        let arr = r.values.slice(6)
+        this.$set(r, 'combined', arr.map(r => r.value || 0).reduce((prev, curr) => { return Number(prev) + Number(curr)}))
+        this.$set(this.modification,index, false)
+      })
+    },
     edit(index, item) {
       let count = 0, data = {} ,arr = this.products[index].values.map((r, index) => {
           if (index >=6 && r !== '') {
@@ -78,11 +83,27 @@ export default {
           data.product_id = item.product_id
           data.field_values = {}
           arr.filter(r => r.value !== '').map(n => {
-            data.field_values[n.name] = n.value
+            if (n.name) {
+              data.field_values[n.name] = n.value
+            }
           })
           data.code = this.$global.getCode()
-          this.$http('post', 'trackings/update_product_values', data)
-          console.log(data)
+          this.$http('post', 'trackings/update_product_values', data).then(r => {
+            if (r.message === 'SUCCESS') {
+              this.$createToast({
+                time: 2000,
+                type: 'correct',
+                txt: `更新成功!`
+              }).show()
+              this.store()
+            } else {
+              this.$createToast({
+                time: 2000,
+                type: 'error',
+                txt: `错误!`
+              }).show()
+            }
+          })
         }
       }
       if (!count) {

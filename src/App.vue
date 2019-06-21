@@ -7,6 +7,7 @@
 </template>
 <style lang="stylus">
 #app
+  background-color #ffffff
   height: 100%
   position relative
 </style>

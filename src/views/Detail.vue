@@ -148,6 +148,7 @@ export default {
 .detail
   position relative
   height 100%
+  background-color #ffffff
   color #666666
   .header
     height 1rem
@@ -164,8 +165,8 @@ export default {
     bottom 0
   .add
     position fixed
-    top 14.5rem
-    right .5rem
+    bottom 1rem
+    right 1rem
     height 1rem
     width 1rem
     text-align center

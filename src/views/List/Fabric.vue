@@ -16,7 +16,7 @@
             </p>
           </div>
         </li>
-        <p class="pb-10 pt-10 f-16 clear">合计：</p>
+        <p class="pb-10 pt-10 f-16 clear">合计：{{headCombined}}</p>
       </ul>
     </div>
 
@@ -27,12 +27,12 @@
           <div class="d-f f-14">
              <p class="w-100 d-f a-i-c">
               <span class="f-1 d-b t-c">{{_item.text}}</span>
-              <cube-input class="c-blue f-1" v-model="_item.value" :disabled="!modification[index]"></cube-input>
+              <cube-input class="c-blue f-1" :class="{inputBorder : modification[index]}" v-model="_item.value" :disabled="!modification[index]"></cube-input>
             </p>
           </div>
         </li>
         <p class="pb-10 pt-10 f-16 d-f j-c-s-b clear">
-          <span>合计：</span>
+          <span>合计：{{item.combined}}</span>
           <span @touchend.stop.prevent="edit(index)">
             <i class="iconfont icon-xiugai1 c-blue248 f-18" v-show="!modification[index]"/>
             <i class="iconfont icon-baocun c-red75 f-18" v-show="modification[index]"/>
@@ -59,9 +59,8 @@ export default {
         if (data.product_size) {
           this.product_size = data.product_size
           this.others = data.others
-          this.others.forEach((r, index) => {
-            this.$set(this.modification,index, false)
-          })
+          this.headCombined = this.product_size.map(r => r.value).reduce((prev, curr) => { return Number(prev) + Number(curr)})
+          this.store()
         } else {
           this.product_size = []
           this.others = []
@@ -72,12 +71,19 @@ export default {
   },
   data () {
     return {
+      headCombined: 0,
       product_size: [], // 尺码信息
       others: [], // data数据
       modification: []
     }
   },
   methods: {
+    store () {
+      this.others.forEach((r, index) => {
+        this.$set(r, 'combined', r.values.map(r => r.value).reduce((prev, curr) => { return Number(prev) + Number(curr)}))
+        this.$set(this.modification,index, false)
+      })
+    },
     edit(index) {
       let count = 0, data = {}, Id = ['tailoring', 'customer', 'mantissa', 'defective'], record = 36, arr = this.others[index].values.map(r => r.value)
       if (this.modification[index]) { // 保存时
@@ -106,6 +112,13 @@ export default {
                 time: 2000,
                 type: 'correct',
                 txt: `更新成功!`
+              }).show()
+              this.store()
+            } else {
+              this.$createToast({
+                time: 2000,
+                type: 'error',
+                txt: `错误!`
               }).show()
             }
           })

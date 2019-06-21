@@ -6,9 +6,9 @@
        <ul>
         <li v-for ="(item, index) in items" :key ="index">
            <div class="list p-10 pr-12 pl-12">
-            <p class="pb-10 f-14 d-f j-c-s-b">
-              <span class="f-3 hidden">{{item.product_name}}{{item.customer_name}}</span>
-              <span class="f-2">交付时间: {{item.delivery_date}}</span>
+            <p class="pb-10 f-14 d-f j-c-s-b headerText">
+              <span class="f-1 hidden">{{item.product_name}}{{item.customer_name}}</span>
+              <span class="f-1 t-r">交付时间: {{item.delivery_date}}</span>
             </p>
             <div class="d-f" @click="goDetails(item)">
               <img src="../assets/img/default.jpg" alt="" v-if="!item.file_path">
@@ -113,6 +113,9 @@ export default {
           this.search.pageSize = data.data.paginate_meta.total_pages
           this.items = this.items.concat(data.data.result)
           this.options.pullUpLoad = data.data.result.length < 8 ? false : true
+          if (!data.data.result.length) { // 为0的时候
+            this.search.pageIndex--
+          }
         })
       } else {
         this.items.splice(0)
@@ -142,12 +145,15 @@ export default {
 .home
   .content-list
     position absolute
-    top 1rem
+    top 1.02rem
     left 0
     bottom 0
     right 0
   .list
     border-bottom .02rem solid #eeeeee
+    .headerText
+      height .36rem
+      line-height .36rem
     img
       width 1.2rem
       height 1.2rem
