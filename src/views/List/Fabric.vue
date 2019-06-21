@@ -25,7 +25,7 @@
       <ul>
         <li v-for="(_item, _index) in item.values" :key="_index" class="pb-10 w-50 f-l">
           <div class="d-f f-14">
-             <p class="w-100 d-f a-i-c">
+             <p class="w-100 d-f a-i-c ht-20">
               <span class="f-1 d-b t-c">{{_item.text}}</span>
               <cube-input class="c-blue f-1" :class="{inputBorder : modification[index]}" v-model="_item.value" :disabled="!modification[index]"></cube-input>
             </p>
