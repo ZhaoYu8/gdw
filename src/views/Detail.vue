@@ -30,7 +30,7 @@ import Fabric from '../views/List/Fabric'
 import Material from '../views/List/Material'
 import OrderStyle from '../views/List/OrderStyle'
 import Production from '../views/List/Production'
-import add from './Add'
+import add from './add'
 export default {
   name: "detail",
   components: {
